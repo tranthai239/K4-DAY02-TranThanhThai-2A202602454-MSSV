@@ -423,6 +423,14 @@ def run(cfg: Config) -> dict:
         summary["test_top1"] = float(test_metrics["top1"])
         summary["test_ece"] = float(test_metrics["ece"])
 
+    # Dọn sạch VRAM và RAM để tránh tràn bộ nhớ (OOM) làm ngắt kết nối Colab
+    del net, eval_net, best_state_dict, optimizer, scheduler, scaler
+    del train_loader, val_loader
+    import gc
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
     return summary
 
 
