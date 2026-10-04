@@ -53,14 +53,25 @@ submissions/2A202602454_TranThanhThai/
     ├── inference.py        # TTA, Temperature Scaling, Ensemble, Gộp BN
     ├── benchmark.py        # Đo độ trễ p50/p95/p99 đúng chuẩn (GPU sync + warmup)
     ├── export_results.py   # Xuất file results.xlsx đầy đủ 7 sheets
-    └── lab_day2.ipynb      # Notebook tương tác chạy toàn bộ thí nghiệm trên Colab/Kaggle
+    ├── lab_day2.ipynb      # Notebook tương tác chạy trên Colab
+    └── kaggle_day2.ipynb   # Notebook tối ưu hóa chạy trên Kaggle (GPU T4, tự động tải/phát hiện dataset)
 ```
 
 ---
 
 ## 3. Hướng dẫn Chạy lại Thực nghiệm
 
-### Cách 1: Chạy bằng Google Colab (Khuyên dùng)
+### Cách 1: Chạy bằng Kaggle Notebooks (Khuyên dùng - Ổn định nhất & Không lo mất kết nối)
+1. Mở Kaggle ([kaggle.com/code](https://www.kaggle.com/code)), chọn **New Notebook** > **File** > **Upload Notebook** và chọn file [`kaggle_day2.ipynb`](code/kaggle_day2.ipynb) (hoặc ở thư mục gốc repo `kaggle_day2.ipynb`).
+2. Cấu hình Runtime trên Kaggle (cột phải):
+   - **Accelerator**: Chọn **GPU T4 x 1** (hoặc P100).
+   - **Internet**: Chuyển sang **On** (để tải thư viện và dataset).
+3. Tùy chọn chạy:
+   - **Chạy nhanh kiểm tra (10-15 phút)**: Giữ nguyên `MODE = "FAST_VERIFY"` để kiểm tra tính toàn vẹn của toàn bộ pipeline từ B01–B05, T00–T09, I00–I08 đến F01, `eval.py` và `results.xlsx`.
+   - **Chạy huấn luyện đầy đủ**: Đổi `MODE = "FULL_TRAIN"` và nhấn **Save Version** > **Save & Run All (Commit)** để Kaggle chạy ngầm qua đêm mà không cần mở trình duyệt.
+4. Tải kết quả: Toàn bộ `results.xlsx`, `predictions/`, `curves/` được tự động đóng gói vào `submission_outputs.zip` trong tab **Output**.
+
+### Cách 2: Chạy bằng Google Colab
 1. Mở Google Colab, tạo Notebook mới hoặc tải file [`code/lab_day2.ipynb`](code/lab_day2.ipynb) lên.
 2. Chọn Runtime: **Runtime > Change runtime type > Chọn GPU (Tesla T4)**.
 3. Chạy tuần tự các ô lệnh:
@@ -70,7 +81,7 @@ submissions/2A202602454_TranThanhThai/
    - Chạy các bước sàng lọc Backbone (B01–B05), Công thức huấn luyện (T00–T09) và Suy luận (I00–I08).
    - Chạy Chung kết qua 3 seeds (`0, 1, 2`) và đánh giá bằng `eval.py score` & `eval.py grade`.
 
-### Cách 2: Chạy từ Terminal / Command Line
+### Cách 3: Chạy từ Terminal / Command Line
 Sử dụng trình thông dịch `py`:
 
 ```bash

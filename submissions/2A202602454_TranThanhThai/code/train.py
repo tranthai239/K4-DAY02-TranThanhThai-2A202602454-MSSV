@@ -416,6 +416,7 @@ def run(cfg: Config) -> dict:
         "params_m": num_params_m,
         "gmacs": gmacs,
         "mean_epoch_time_s": round(float(np.mean(epoch_durations)), 2),
+        "train_sec_per_epoch": round(float(np.mean(epoch_durations)), 2),
         "total_time_s": round(time.time() - start_time, 2),
     }
     if test_metrics is not None:
