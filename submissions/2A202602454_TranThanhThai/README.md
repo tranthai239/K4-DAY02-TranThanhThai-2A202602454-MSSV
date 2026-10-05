@@ -10,6 +10,7 @@
 ## 1. Môi trường & Phiên bản Thư viện
 
 - **Môi trường thực thi khuyến nghị:** Google Colab (GPU Tesla T4 16GB) hoặc Kaggle Notebooks.
+- **Link Kaggle Notebook:** [Kaggle Notebook](https://www.kaggle.com/code/duunanoa/notebook9a55040fdf/edit)
 - **Python:** `3.10` / `3.11` / `3.12`
 - **PyTorch:** `>= 2.0.0` (hỗ trợ AMP Autocast & GradScaler)
 - **torchvision:** `>= 0.15.0`
