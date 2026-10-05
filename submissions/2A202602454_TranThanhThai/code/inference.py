@@ -34,7 +34,7 @@ def predict_logits(model: nn.Module, loader, device: str | torch.device, view=No
     """Chạy model trên loader và gom logit theo đúng thứ tự file."""
     model.eval()
     device = torch.device(device)
-    model.to(device)
+    model.to(device).float()  # Ép FP32 tránh lỗi dtype khi checkpoint lưu từ AMP (FP16)
 
     all_filenames = []
     all_y_true = []

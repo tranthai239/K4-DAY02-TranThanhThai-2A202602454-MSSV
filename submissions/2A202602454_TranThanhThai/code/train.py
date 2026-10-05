@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 
 # Đảm bảo import được các module cục bộ và eval.py từ repo root
 CURRENT_DIR = Path(__file__).resolve().parent
@@ -163,11 +163,11 @@ def train_one_epoch(net: nn.Module, loader, criterion, optimizer, scheduler, sca
         # Trộn batch nếu có cấu hình Mixup / CutMix
         if cfg.mix is not None:
             mixed_images, targets = loss_utils.mix_batch(images, labels, alpha=cfg.mix_alpha, mode=cfg.mix)
-            with autocast(enabled=cfg.amp):
+            with autocast('cuda', enabled=cfg.amp):
                 logits = net(mixed_images)
                 loss = loss_utils.mixed_loss(criterion, logits, targets)
         else:
-            with autocast(enabled=cfg.amp):
+            with autocast('cuda', enabled=cfg.amp):
                 logits = net(images)
                 loss = criterion(logits, labels)
 
@@ -328,8 +328,10 @@ def run(cfg: Config) -> dict:
     # 6. Optimizer, Scheduler, Scaler, EMA
     optimizer = build_optimizer(net, cfg)
     scheduler = build_scheduler(optimizer, cfg, steps_per_epoch=len(train_loader))
-    scaler = GradScaler(enabled=cfg.amp)
+    scaler = GradScaler('cuda', enabled=cfg.amp)
     ema = EMA(net, decay=cfg.ema_decay) if cfg.ema_decay is not None else None
+    # Tránh cảnh báo "lr_scheduler.step() before optimizer.step()" ở lần gọi đầu tiên
+    optimizer._step_count = 1
 
     # 7. Vòng lặp epoch
     history = []
@@ -377,8 +379,9 @@ def run(cfg: Config) -> dict:
             best_epoch = ep
             best_state_dict = copy.deepcopy(eval_net.state_dict())
 
-    # Lưu checkpoint tốt nhất
-    torch.save(best_state_dict, save_dir / "best_model.pth")
+    # Ép FP32 trước khi lưu checkpoint (tránh lỗi dtype khi suy luận không dùng autocast)
+    best_state_dict_fp32 = {k: v.float() for k, v in best_state_dict.items()}
+    torch.save(best_state_dict_fp32, save_dir / "best_model.pth")
 
     # 8. Nạp lại checkpoint tốt nhất và lưu dự đoán trên tập Val
     net.load_state_dict(best_state_dict)
